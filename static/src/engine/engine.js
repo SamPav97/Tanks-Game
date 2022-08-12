@@ -1,13 +1,31 @@
 export async function createRenderer() {
+    const images = {};
+    const imgList = [
+        'tank-body.png',
+        'tracks0.png',
+        'tracks1.png'
+    ];
+//    Go throug the list and for each file create an image resource in the object above.
+    for (let img of imgList) {
+        // Fetch will return response and blob also returns resp. Then I wil lget the images.
+        images[img] = await createImageBitmap(await (await fetch(`/assets/${img}`)).blob());
+    }
+
+
     const canvas = document.querySelector('canvas');
     /** @type {CanvasRenderingContext2D} */
     const ctx = canvas.getContext('2d');
+
+    // Make sure pix are not stretched.
+    ctx.font = '20px Consolas, sans-serif';
+    ctx.imageSmoothingEnabled = false;
 
     const engine = {
         WIDTH: canvas.width,
         HEIGHT: canvas.height,
         clear,
-        drawGrid
+        drawGrid,
+        drawImage
     };
 
     return engine
@@ -56,5 +74,20 @@ export async function createRenderer() {
 
             ctx.closePath();
         }
+    }
+
+    function drawImage(imgName, x, y, scale, rotation) {
+        //I rotate and move the canvas not the image.
+        // .save saves the current location.
+        ctx.save();
+
+        // Move to new cords.
+        ctx.translate(x, y);
+        const img = images[imgName];
+        // I dont want it stretched but in original size so I multply it by scale.
+        ctx.drawImage(img, 0, 0, img.width * scale, img.height * scale);
+
+
+        ctx.restore();
     }
 }
