@@ -19,16 +19,50 @@ export async function createRenderer() {
     // Make sure pix are not stretched.
     ctx.font = '20px Consolas, sans-serif';
     ctx.imageSmoothingEnabled = false;
-
+    //With step size we get spped in sec not mssec.
     const engine = {
+        STEP_SIZE: 1000 /50,
+        STEP_SIZE_S: 1/50,
         WIDTH: canvas.width,
         HEIGHT: canvas.height,
         clear,
         drawGrid,
         drawImage,
         drawCircle,
-        drawText
+        drawText,
+        onKey() {},
+        registerMain(render, tick) {
+            let last = performance.now();
+            let delta = 0;
+
+            main(last);
+            //At start delta will incrase by one and animation will start. THIS IS MY MAIN GAME LOOP.
+            function main(time) {
+                delta += time - last;
+                last = time;
+                // To prevent the browser from blocking we always keep the delta low
+                if(delta > 1000) {
+                    delta = engine.STEP_SIZE;
+                }
+                while(delta >= engine.STEP_SIZE) {
+                    delta -= engine.STEP_SIZE;
+                    tick();
+                }
+                render();
+                // requ will be called when browser is ready to render next frame.
+                requestAnimationFrame(main);
+            }
+        }
     };
+
+    // I dont just listen for key down event. Instead, I say start at key down until key is released. Its a duration event. 
+    document.addEventListener('keydown', event => {
+        engine.onKey(event.code, true);
+    });
+
+    document.addEventListener('keyup', event => {
+        engine.onKey(event.code, false);
+    });
 
     return engine
 
