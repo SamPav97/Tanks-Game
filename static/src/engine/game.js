@@ -5,5 +5,10 @@ export async function start(username, gameId) {
 
     engine.clear();
     engine.drawGrid();
-    engine.drawImage('tank-body.png', 0, 0, 1);
+    // size, location, radians (for rotation)
+    engine.drawImage('tracks0.png', 200, 200, 2, Math.PI / 2);
+    engine.drawImage('tank-body.png', 200, 200, 2, Math.PI / 2);
+
+    engine.drawCircle(100, 100, 10, 'black');
+    engine.drawText('Hello there', 10, 30, 'blue');
 }

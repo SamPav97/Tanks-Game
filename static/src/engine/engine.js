@@ -25,7 +25,9 @@ export async function createRenderer() {
         HEIGHT: canvas.height,
         clear,
         drawGrid,
-        drawImage
+        drawImage,
+        drawCircle,
+        drawText
     };
 
     return engine
@@ -81,13 +83,34 @@ export async function createRenderer() {
         // .save saves the current location.
         ctx.save();
 
-        // Move to new cords.
+        //Rotate
+        // Move to new coordinates.
         ctx.translate(x, y);
+        ctx.rotate(rotation);
         const img = images[imgName];
+        const w = img.width * scale;
+        const h = img.height * scale;
         // I dont want it stretched but in original size so I multply it by scale.
-        ctx.drawImage(img, 0, 0, img.width * scale, img.height * scale);
-
+        ctx.drawImage(img, -(w / 2), -(h / 2), w, h);
+ 
 
         ctx.restore();
     }
+
+    function drawCircle(x, y, radius, color = 'red') {
+        ctx.beginPath()
+        ctx.fillStyle = color
+        ctx.moveTo(x, y);
+        //make circle
+        ctx.ellipse(x, y, radius, radius, 0, 0, Math.PI * 2);
+        ctx.fill()
+
+        ctx.closePath();
+    }
+
+    function drawText(text, x, y, color = 'black') {
+        ctx.fillStyle = color;
+        ctx.fillText(text, x, y); 
+    }
 }
+
