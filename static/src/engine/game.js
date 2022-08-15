@@ -5,17 +5,21 @@ const ACCELERATION = 600;
 const MAX_SPEED = 300;
 const TURN_RATE = 3;
 const FRICTION = 1000;
+const TANK_SIZE = 15;
 
 
 export async function start(username, gameId) {
     const tanks = {};
     const controls = {};
+    let shots = [];
+
     // All are beginning value. x starts at 100. speed starts at 0.
     const player = {
         x: 100,
         y: 100,
         direction: 0,
-        speed: 0
+        speed: 0,
+        cooldown: 0
     };
 
     const engine = await createRenderer();
@@ -50,6 +54,8 @@ export async function start(username, gameId) {
             Object.assign(tanks[user], data.players[user]);
             }
         };
+        //I take out the shots from the data and have to visualize them in render.
+        shots = data.projectiles;
     };
 
     engine.registerMain(render, tick);
@@ -80,10 +86,44 @@ export async function start(username, gameId) {
             player.direction += TURN_RATE * engine.STEP_SIZE_S
         }
 
+        //Shooting detection.
+        // if button press space and player did not shoot in last second (to avoid machinegun fire)
+        if (controls['Space'] && player.cooldown == 0) {
+            // Initate cooldown.
+            player.cooldown = 1;
+            //Say you've shot and send the msg through connection.
+            //Server will take care of shot but give it correct data.
+            //Origin says it is our shot. x, y origin of shot, direction is way we are facing.
+            const shot = {
+                origin: username,
+                x: player.x,
+                y: player.y,
+                direction: player.direction,
+                alive: true
+            };
+            //Send data thru:
+            connecttion.fire(shot);
+        } else {
+            player.cooldown = Math.max(player.cooldown - engine.STEP_SIZE_S, 0)
+        }
+
         if (player.speed != 0) {
             // cos for x and sin for y
             player.x += Math.cos(player.direction) * player.speed * engine.STEP_SIZE_S;
             player.y += Math.sin(player.direction) * player.speed * engine.STEP_SIZE_S;
+        }
+
+        //Make sure players cannot leave the field.
+        if(player.x < TANK_SIZE) {
+            player.x = TANK_SIZE;
+        } else if (player.x > engine.WIDTH - TANK_SIZE) {
+            player.x = engine.WIDTH - TANK_SIZE;
+        }
+
+        if(player.y < TANK_SIZE) {
+            player.y = TANK_SIZE;
+        } else if (player.y > engine.HEIGHT - TANK_SIZE) {
+            player.y = engine.HEIGHT - TANK_SIZE;
         }
 
         //Send my position to server. 
@@ -113,6 +153,11 @@ export async function start(username, gameId) {
         // size, location, radians (for rotation) for our tank. Those will change depending on the player dictionary.
         engine.drawImage('tracks0.png', player.x, player.y, 2, player.direction);
         engine.drawImage('tank-body.png', player.x, player.y, 2, player.direction);
+
+        //Visualize the shots
+        for (let shot of shots) {
+            engine.drawCircle(shot.x, shot.y, 5, 'black');
+        }
 
         engine.drawText(player.speed, 10, 30);
     }

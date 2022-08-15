@@ -6,9 +6,13 @@ export async function connect(username, roomId, player) {
         //Establish connection with server.
         const socket = io.connect();
         //I need to send the player data to the server. Like postion.
+        //Fire sends the fire event to the server, which simulates it.
         const client = {
             position(player) {
                 socket.emit('position', player);
+            },
+            fire(shot) {
+                socket.emit('fire', shot);
             },
             onPlayerJoined() {},
             onPlayerLeft() {},
