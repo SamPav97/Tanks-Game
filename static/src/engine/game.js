@@ -9,10 +9,6 @@ const TANK_SIZE = 15;
 
 
 export async function start(username, gameId) {
-    const tanks = {};
-    const controls = {};
-    let shots = [];
-
     // All are beginning value. x starts at 100. speed starts at 0.
     const player = {
         x: 100,
@@ -21,6 +17,13 @@ export async function start(username, gameId) {
         speed: 0,
         cooldown: 0
     };
+    // Include player tank in all tanks so that hit animation is visible when player is hit.
+    const tanks = {
+        [username]: player
+    };
+    const controls = {};
+    let hits = [];
+    let shots = [];
 
     const engine = await createRenderer();
 
@@ -56,6 +59,18 @@ export async function start(username, gameId) {
         };
         //I take out the shots from the data and have to visualize them in render.
         shots = data.projectiles;
+        //get data from server for who was hit. but this data lives only one frame.
+        //Get only info about first hit; get hit tank from tanks by username; make it into objects; then add new hit to hits.
+        let newHits = data.hits
+            .map(h => h[0])
+            .map(h => tanks[h])
+            .map(h => ({
+                x: h.x,
+                y: h.y,
+                alive: true,
+                frame: 0
+            }));
+        hits.push(...newHits);
     };
 
     engine.registerMain(render, tick);
@@ -134,30 +149,38 @@ export async function start(username, gameId) {
         engine.clear();
         engine.drawGrid();
 
-        const enemies = Object.keys(tanks)
+        const players = Object.keys(tanks)
         // Log number of players and player list. This happens in upper left corner.
-        engine.drawText(`${1 + enemies.length} player${enemies.length > 0 ? 's' : ''}`, 10, 50);
-        engine.drawText(username, 10, 70, 'green');
+        engine.drawText(`${players.length} player${players.length > 1 ? 's' : ''}`, 10, 50);
 
 
-        for (let i = 0; i < enemies.length; i++) {
+        for (let i = 0; i < players.length; i++) {
             //render guest tank
-            const user = enemies[i];
+            const user = players[i];
             const tank = tanks[user];
             engine.drawImage('tracks0.png', tank.x, tank.y, 2, tank.direction);
             engine.drawImage('tank-body.png', tank.x, tank.y, 2, tank.direction);
 
             engine.drawText(user, 10, 90 + (20 * i), 'red');
         }
-        // Render my tank.
-        // size, location, radians (for rotation) for our tank. Those will change depending on the player dictionary.
-        engine.drawImage('tracks0.png', player.x, player.y, 2, player.direction);
-        engine.drawImage('tank-body.png', player.x, player.y, 2, player.direction);
 
         //Visualize the shots
         for (let shot of shots) {
             engine.drawCircle(shot.x, shot.y, 5, 'black');
         }
+
+        //Make animation for hits.
+        for (let hit of hits) {
+            engine.drawCircle(hit.x, hit.y, hit.frame * 2, 'red');
+            engine.drawCircle(hit.x, hit.y, hit.frame * 1, 'orange');
+            engine.drawCircle(hit.x, hit.y, hit.frame * 0.5, 'white');
+            hit.frame++
+            if (hit.frame >= 15) {
+                //tank dies
+                hit.alive = false;
+            }
+        }
+        hits = hits.filter(h => h.alive);
 
         engine.drawText(player.speed, 10, 30);
     }
