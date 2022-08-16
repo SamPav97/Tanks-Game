@@ -6,6 +6,9 @@ const MAX_SPEED = 300;
 const TURN_RATE = 3;
 const FRICTION = 1000;
 const TANK_SIZE = 15;
+const DASH_SPEED = 600;
+const DASH_TIME = 0.25;
+const DASH_COOLDOWN = 5;
 
 
 export async function start(username, gameId) {
@@ -15,7 +18,8 @@ export async function start(username, gameId) {
         y: 100,
         direction: 0,
         speed: 0,
-        cooldown: 0
+        cooldown: 0,
+        dash: 0
     };
     // Include player tank in all tanks so that hit animation is visible when player is hit.
     const tanks = {
@@ -88,8 +92,8 @@ export async function start(username, gameId) {
         } else if (player.speed < 0) {
             player.speed = Math.min(player.speed + FRICTION * engine.STEP_SIZE_S, 0);
         }
-
-        if (Math.abs(player.speed) > MAX_SPEED) {
+        // When dash is smaller than cooldown-dashtime we should allow max speed to go over allowed.
+        if (Math.abs(player.speed) > MAX_SPEED && player.dash < DASH_COOLDOWN - DASH_TIME) {
             // To prevent when going backawrds to switch the speed we multiply it by the sign = or - of player speed.
             player.speed = MAX_SPEED * Math.sign(player.speed);
         }
@@ -118,9 +122,21 @@ export async function start(username, gameId) {
             };
             //Send data thru:
             connecttion.fire(shot);
-        } else {
-            player.cooldown = Math.max(player.cooldown - engine.STEP_SIZE_S, 0)
+        } else if (player.cooldown > 0) {
+            player.cooldown = Math.max(player.cooldown - engine.STEP_SIZE_S, 0);
         }
+
+        //Dashing
+        if(controls['ShiftLeft'] && player.dash == 0) {
+            player.dash = DASH_COOLDOWN;
+            //Only dash forward... no negative speed:
+            player.speed = DASH_SPEED;
+        } else if (player.dash > 0){
+            // Cool off.
+            player.dash = Math.max(player.dash - engine.STEP_SIZE_S, 0);
+        }
+
+
 
         if (player.speed != 0) {
             // cos for x and sin for y
@@ -151,7 +167,7 @@ export async function start(username, gameId) {
 
         const players = Object.keys(tanks)
         // Log number of players and player list. This happens in upper left corner.
-        engine.drawText(`${players.length} player${players.length > 1 ? 's' : ''}`, 10, 50);
+        engine.drawText(`${players.length} player${players.length > 1 ? 's' : ''}`, 10, 90);
 
 
         for (let i = 0; i < players.length; i++) {
@@ -161,7 +177,7 @@ export async function start(username, gameId) {
             engine.drawImage('tracks0.png', tank.x, tank.y, 2, tank.direction);
             engine.drawImage('tank-body.png', tank.x, tank.y, 2, tank.direction);
 
-            engine.drawText(user, 10, 90 + (20 * i), 'red');
+            engine.drawText(user, 10, 110 + (20 * i), 'red');
         }
 
         //Visualize the shots
@@ -182,6 +198,7 @@ export async function start(username, gameId) {
         }
         hits = hits.filter(h => h.alive);
 
-        engine.drawText(player.speed, 10, 30);
+        engine.drawText('Speed:' + player.speed, 10, 30);
+        engine.drawText('Dash:' + player.dash.toFixed(1), 10, 50);
     }
 }
