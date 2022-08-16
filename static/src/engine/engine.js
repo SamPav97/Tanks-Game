@@ -1,3 +1,15 @@
+    // I dont just listen for key down event. Instead, I say start at key down until key is released. Its a duration event. 
+    document.addEventListener('keydown', event => {
+        engine?.onKey(event.code, true);
+    });
+
+    document.addEventListener('keyup', event => {
+        engine?.onKey(event.code, false);
+    });
+
+let engine = null;
+
+
 export async function createRenderer() {
     const images = {};
     const imgList = [
@@ -20,7 +32,7 @@ export async function createRenderer() {
     ctx.font = '20px Consolas, sans-serif';
     ctx.imageSmoothingEnabled = false;
     //With step size we get spped in sec not mssec.
-    const engine = {
+    engine = {
         STEP_SIZE: 1000 /50,
         STEP_SIZE_S: 1/50,
         WIDTH: canvas.width,
@@ -54,15 +66,6 @@ export async function createRenderer() {
             }
         }
     };
-
-    // I dont just listen for key down event. Instead, I say start at key down until key is released. Its a duration event. 
-    document.addEventListener('keydown', event => {
-        engine.onKey(event.code, true);
-    });
-
-    document.addEventListener('keyup', event => {
-        engine.onKey(event.code, false);
-    });
 
     return engine
 

@@ -1,10 +1,21 @@
 /* globals io */
 
+
+let socket = null;
+
+export function closeSocket() {
+    //Disconnect any previous rooms. You will use that in app exit function too.
+    if (socket != null) {
+        socket.disconnect();
+    }
+}
+
 export async function connect(username, roomId, player) {
     // I need a promise returend.
     return new Promise((resolve, reject) => {
-        //Establish connection with server.
-        const socket = io.connect();
+        //Establish connection with server only if you werent connected to another room prev.
+        closeSocket();
+        socket = io.connect();
         //I need to send the player data to the server. Like postion.
         //Fire sends the fire event to the server, which simulates it.
         const client = {

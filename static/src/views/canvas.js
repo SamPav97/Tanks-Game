@@ -12,9 +12,11 @@ const canvasTemplate = (game) => html`
 //Load game
 export async function canvasView(ctx) {
     const gameId = ctx.params.id;
+    // Select room.
+    //const game = await getGameById(gameId);
     const game = {objectId: 'test'};
     ctx.render(canvasTemplate(game));
 
-    start(ctx.user.username, game.objectId);
+    start(ctx.user.username, gameId);
 }
 
