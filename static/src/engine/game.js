@@ -1,5 +1,5 @@
-import { connect } from "./client.js";
-import { createRenderer } from "./engine.js";
+import { closeSocket, connect } from "./client.js";
+import { closeEngine, createRenderer } from "./engine.js";
 
 const ACCELERATION = 600;
 const MAX_SPEED = 300;
@@ -10,8 +10,15 @@ const DASH_SPEED = 600;
 const DASH_TIME = 0.25;
 const DASH_COOLDOWN = 5;
 
+//Necessary for resolving gosting issue upon rejoin.
+export function closeGame() {
+    closeSocket();
+    closeEngine();
+}
+
 
 export async function start(username, gameId) {
+    const controls = {};
     // All are beginning value. x starts at 100. speed starts at 0.
     const player = {
         x: 100,
@@ -25,7 +32,7 @@ export async function start(username, gameId) {
     const tanks = {
         [username]: player
     };
-    const controls = {};
+    
     let hits = [];
     let shots = [];
 
@@ -165,10 +172,7 @@ export async function start(username, gameId) {
         engine.clear();
         engine.drawGrid();
 
-        const players = Object.keys(tanks)
-        // Log number of players and player list. This happens in upper left corner.
-        engine.drawText(`${players.length} player${players.length > 1 ? 's' : ''}`, 10, 90);
-
+        const players = Object.keys(tanks);
 
         for (let i = 0; i < players.length; i++) {
             //render guest tank
@@ -197,6 +201,12 @@ export async function start(username, gameId) {
             }
         }
         hits = hits.filter(h => h.alive);
+         // Log number of players and player list. This happens in upper left corner.
+        engine.drawText(`${players.length} player${players.length > 1 ? 's' : ''}`, 10, 90);
+        for (let i = 0; i < players.length; i++) {
+            const user = players[i];
+            engine.drawText(user, 10, 110 + (20 * i), user == username ? 'green' : 'red');
+        }
 
         engine.drawText('Speed:' + player.speed, 10, 30);
         engine.drawText('Dash:' + player.dash.toFixed(1), 10, 50);

@@ -5,8 +5,11 @@ import { getGameById } from '../api/games.js';
 
 const detailsTemplate = (gamePromise) => html`
 <section>
-    ${until(gamePromise, html`<h1>Lobby</h1>
-    <p>Loading details...</p>`)}
+    ${until(gamePromise, html`
+    <h1>Lobby</h1>
+    <main>
+        <p>Loading details ...</p>
+    </main>`)}
 </section>`;
 
 export function detailsView(ctx) {
@@ -20,8 +23,10 @@ async function loadGame(ctx) {
 
     return html`
         <h1>${game.name}</h1>
-        <p>Mode: ${game.mode}</p>
-        <p><button @click=${joinGame} class="button">Join Game</button></p>`;
+        <main>
+            <p>Mode: ${game.mode}</p>
+            <p><button @click=${joinGame} class="button">Join Game</button></p>
+        </main>`;
 
     function joinGame(event) {
         event.target.disabled = true;

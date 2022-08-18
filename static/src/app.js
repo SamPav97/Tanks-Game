@@ -10,6 +10,7 @@ import { detailsView } from './views/details.js';
 import { homeView } from './views/home.js';
 import { loginView } from './views/login.js';
 import { registerView } from './views/register.js';
+import { closeGame } from './engine/game.js';
 
 
 
@@ -25,6 +26,10 @@ page('/register', registerView);
 page('/games', catalogView);
 page('/games/:id', detailsView);
 page('/play/:id', canvasView);
+page.exit('/play/:id', (ctx, next) => {
+    closeGame();
+    next();
+});
 page('/create', createView);
 
 

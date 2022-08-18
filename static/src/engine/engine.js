@@ -1,13 +1,20 @@
-    // I dont just listen for key down event. Instead, I say start at key down until key is released. Its a duration event. 
-    document.addEventListener('keydown', event => {
-        engine?.onKey(event.code, true);
-    });
+// I dont just listen for key down event. Instead, I say start at key down until key is released. Its a duration event. 
+document.addEventListener('keydown', event => {
+    engine?.onKey(event.code, true);
+});
 
-    document.addEventListener('keyup', event => {
-        engine?.onKey(event.code, false);
-    });
+document.addEventListener('keyup', event => {
+    engine?.onKey(event.code, false);
+});
 
 let engine = null;
+
+//Necessary for resolving gosting issue upon rejoin.
+export function closeEngine() {
+    if (engine) {
+        engine.going = false;
+    }
+}
 
 
 export async function createRenderer() {
@@ -17,7 +24,7 @@ export async function createRenderer() {
         'tracks0.png',
         'tracks1.png'
     ];
-//    Go throug the list and for each file create an image resource in the object above.
+    //    Go throug the list and for each file create an image resource in the object above.
     for (let img of imgList) {
         // Fetch will return response and blob also returns resp. Then I wil lget the images.
         images[img] = await createImageBitmap(await (await fetch(`/assets/${img}`)).blob());
@@ -33,8 +40,8 @@ export async function createRenderer() {
     ctx.imageSmoothingEnabled = false;
     //With step size we get spped in sec not mssec.
     engine = {
-        STEP_SIZE: 1000 /50,
-        STEP_SIZE_S: 1/50,
+        STEP_SIZE: 1000 / 50,
+        STEP_SIZE_S: 1 / 50,
         WIDTH: canvas.width,
         HEIGHT: canvas.height,
         clear,
@@ -42,7 +49,7 @@ export async function createRenderer() {
         drawImage,
         drawCircle,
         drawText,
-        onKey() {},
+        onKey() { },
         registerMain(render, tick) {
             let last = performance.now();
             let delta = 0;
@@ -53,15 +60,18 @@ export async function createRenderer() {
                 delta += time - last;
                 last = time;
                 // To prevent the browser from blocking we always keep the delta low
-                if(delta > 1000) {
+                if (delta > 1000) {
                     delta = engine.STEP_SIZE;
                 }
-                while(delta >= engine.STEP_SIZE) {
+                while (delta >= engine.STEP_SIZE) {
                     delta -= engine.STEP_SIZE;
                     tick();
                 }
                 render();
-                // requ will be called when browser is ready to render next frame.
+                // requ will be called when browser is ready to render next frame. 
+                // if (engine.going) {
+                //     requestAnimationFrame(main);
+                // } This should solve the ghosting issue as frames wont be requested for players whove left. But it doesnt work.
                 requestAnimationFrame(main);
             }
         }
@@ -84,7 +94,7 @@ export async function createRenderer() {
 
             // Every 4th square is thicker
 
-            if(x % 200 == 0) {
+            if (x % 200 == 0) {
                 ctx.strokeStyle = 'rgba(128, 128, 128, 0.5)';
             } else {
                 ctx.strokeStyle = 'rgba(128, 128, 128, 0.25)';
@@ -104,7 +114,7 @@ export async function createRenderer() {
 
             // Every 4th square is thicker
 
-            if(y % 200 == 0) {
+            if (y % 200 == 0) {
                 ctx.strokeStyle = 'rgba(128, 128, 128, 0.5)';
             } else {
                 ctx.strokeStyle = 'rgba(128, 128, 128, 0.25)';
@@ -129,7 +139,7 @@ export async function createRenderer() {
         const h = img.height * scale;
         // I dont want it stretched but in original size so I multply it by scale.
         ctx.drawImage(img, -(w / 2), -(h / 2), w, h);
- 
+
 
         ctx.restore();
     }
@@ -147,7 +157,7 @@ export async function createRenderer() {
 
     function drawText(text, x, y, color = 'black') {
         ctx.fillStyle = color;
-        ctx.fillText(text, x, y); 
+        ctx.fillText(text, x, y);
     }
 }
 

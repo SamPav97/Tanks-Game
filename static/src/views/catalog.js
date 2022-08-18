@@ -20,7 +20,7 @@ const gamesList = (games) => games.length == 0
 </ul>`;
 
 const lobbyCard = game => html`
-<li>${game.name}<a class="button" href="/games/${game.objectId}">View Lobby</a></li>`;
+<li><a class="lobby-link" href="/games/${game.objectId}">${game.name}</a></li>`;
 
 
 export async function catalogView(ctx) {
