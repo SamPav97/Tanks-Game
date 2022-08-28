@@ -21,12 +21,20 @@ async function loadGame(ctx) {
     const gameId = ctx.params.id;
     const game = await getGameById(gameId);
 
-    return html`
+    if (sessionStorage.userData) {
+        return html`
         <h1>${game.name}</h1>
         <main>
             <p>Mode: ${game.mode}</p>
             <p><button @click=${joinGame} class="button">Join Game</button></p>
         </main>`;
+    } else {
+        return html`
+        <h1>${game.name}</h1>
+        <main>
+            <p>You need to Register or Login to play!</p>
+        </main>`;
+    }
 
     function joinGame(event) {
         event.target.disabled = true;
