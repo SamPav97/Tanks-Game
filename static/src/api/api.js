@@ -35,26 +35,26 @@ async function request(method, url, data) {
         options.headers['X-Parse-Session-Token'] = userData.sessionToken;
     }
 
-try {
-    const res = await fetch(host + url, options);
+    try {
+        const res = await fetch(host + url, options);
 
-    if (res.ok != true) {
-        // I do all these variables so I get the error code and make a notification instead of an alert in my login page if wrong info is given.
-        const error = await res.json();
-        const err = new Error(error.error);
-        err.code = error.code;
+        if (res.ok != true) {
+            // I do all these variables so I get the error code and make a notification instead of an alert in my login page if wrong info is given.
+            const error = await res.json();
+            const err = new Error(error.error);
+            err.code = error.code;
+            throw err;
+        }
+
+        if (res.status == 204) {
+            return res;
+        } else {
+            return res.json();
+        }
+    } catch (err) {
+        console.error(err);
         throw err;
     }
-
-    if (res.status == 204) {
-        return res;
-    } else {
-        return res.json();
-    }
-} catch(err) {
-    console.error(err);
-    throw err;
-}
 
 }
 
