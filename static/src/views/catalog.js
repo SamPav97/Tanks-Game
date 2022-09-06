@@ -3,7 +3,7 @@ import { repeat } from '../lib/directives/repeat.js';
 import { until } from '../lib/directives/until.js'
 import { getAllGames } from '../api/games.js';
 
-// g=>g.objectId is an identity function that updates only new things in the catalog instead of changing all of them.
+
 const catalogTemplate = (gamesPromise) => html`
 <section>
     <h1>Game Lobbies</h1>
@@ -12,6 +12,7 @@ const catalogTemplate = (gamesPromise) => html`
     </main>
 </section>`;
 
+// g=>g.objectId is an identity function that updates only new things in the catalog instead of changing all of them.
 const gamesList = (games) => games.length == 0
     ? html`<p>No lobbies hosted yet. <a href="/create">Be the first!</a></p>`
     : html`
@@ -28,6 +29,7 @@ export async function catalogView(ctx) {
     ctx.render(catalogTemplate(loadGames()));
 }
 
+//Get all games.
 async function loadGames() {
     const games = await getAllGames();
     return gamesList(games.results);

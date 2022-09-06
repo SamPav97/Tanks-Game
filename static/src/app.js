@@ -1,4 +1,4 @@
-
+// Routing and handling views
 import page from './lib/page.mjs';
 import { addLogout } from './middleware/logout.js';
 import { addRender } from './middleware/render.js';

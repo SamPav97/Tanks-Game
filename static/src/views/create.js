@@ -24,8 +24,8 @@ export function createView(ctx) {
     ctx.render(createTemplate(bindForm(onSubmit)));
 
     async function onSubmit({ name, mode }, form) {
-        //I destructure first and then structure it back because bind do not discriminate.
-        try{
+        //I destructure first and then structure it back because bind does not discriminate.
+        try {
             const result = await createGame({ name, mode });
             form.reset();
             // Send to game.
