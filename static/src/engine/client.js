@@ -1,5 +1,6 @@
 /* globals io */
 
+//File contains some connection functions that I will use in engine initialization.
 
 let socket = null;
 
@@ -25,10 +26,10 @@ export async function connect(username, roomId, player) {
             fire(shot) {
                 socket.emit('fire', shot);
             },
-            onPlayerJoined() {},
-            onPlayerLeft() {},
-            onPlayers() {},
-            onUpdate() {}
+            onPlayerJoined() { },
+            onPlayerLeft() { },
+            onPlayers() { },
+            onUpdate() { }
         };
 
         //Below is the callback. Socket on listens for data from event connect.

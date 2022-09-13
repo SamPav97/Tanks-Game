@@ -1,6 +1,8 @@
 import { closeSocket, connect } from "./client.js";
 import { closeEngine, createRenderer } from "./engine.js";
 
+//File contains actual gamplay initialization.
+
 const ACCELERATION = 600;
 const MAX_SPEED = 300;
 const TURN_RATE = 3;
@@ -32,7 +34,7 @@ export async function start(username, gameId) {
     const tanks = {
         [username]: player
     };
-    
+
     let hits = [];
     let shots = [];
 
@@ -65,7 +67,7 @@ export async function start(username, gameId) {
         for (let user in data.players) {
             // get enemy tank locally and see its movemnt. 
             if (user != username && tanks[user]) {
-            Object.assign(tanks[user], data.players[user]);
+                Object.assign(tanks[user], data.players[user]);
             }
         };
         //I take out the shots from the data and have to visualize them in render.
@@ -134,11 +136,11 @@ export async function start(username, gameId) {
         }
 
         //Dashing
-        if(controls['ShiftLeft'] && player.dash == 0) {
+        if (controls['ShiftLeft'] && player.dash == 0) {
             player.dash = DASH_COOLDOWN;
             //Only dash forward... no negative speed:
             player.speed = DASH_SPEED;
-        } else if (player.dash > 0){
+        } else if (player.dash > 0) {
             // Cool off.
             player.dash = Math.max(player.dash - engine.STEP_SIZE_S, 0);
         }
@@ -152,13 +154,13 @@ export async function start(username, gameId) {
         }
 
         //Make sure players cannot leave the field.
-        if(player.x < TANK_SIZE) {
+        if (player.x < TANK_SIZE) {
             player.x = TANK_SIZE;
         } else if (player.x > engine.WIDTH - TANK_SIZE) {
             player.x = engine.WIDTH - TANK_SIZE;
         }
 
-        if(player.y < TANK_SIZE) {
+        if (player.y < TANK_SIZE) {
             player.y = TANK_SIZE;
         } else if (player.y > engine.HEIGHT - TANK_SIZE) {
             player.y = engine.HEIGHT - TANK_SIZE;
@@ -201,7 +203,7 @@ export async function start(username, gameId) {
             }
         }
         hits = hits.filter(h => h.alive);
-         // Log number of players and player list. This happens in upper left corner.
+        // Log number of players and player list. This happens in upper left corner.
         engine.drawText(`${players.length} player${players.length > 1 ? 's' : ''}`, 10, 90);
         for (let i = 0; i < players.length; i++) {
             const user = players[i];

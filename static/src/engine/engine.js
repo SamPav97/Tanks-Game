@@ -1,3 +1,5 @@
+//File contains Canvas related functions that display gameplay.
+
 // I dont just listen for key down event. Instead, I say start at key down until key is released. Its a duration event. 
 document.addEventListener('keydown', event => {
     engine?.onKey(event.code, true);
@@ -69,8 +71,7 @@ export async function createRenderer() {
                 }
                 render();
                 // requ will be called when browser is ready to render next frame. 
-                // if (engine.going) {
-                //     requestAnimationFrame(main);
+
                 // } This should solve the ghosting issue as frames wont be requested for players whove left. But it doesnt work.
                 requestAnimationFrame(main);
             }
