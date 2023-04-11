@@ -1,4 +1,4 @@
-Tanks Game is JS based multiplayer game. For hands-on experience see deployment or go to: https://tanks-game-softuni.herokuapp.com/
+Tanks Game is JS based multiplayer game. Deployment currently unavailable.
 
 Instructions: 1-Go to the link above. 2-Register or Login. 3-Click 'view lobbies'. 4-Select a lobby. 5-Click 'Join Game'. 5-Get another player to join the same lobby.
 
